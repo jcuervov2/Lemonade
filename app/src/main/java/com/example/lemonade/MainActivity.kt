@@ -42,14 +42,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun machineStateLemonade(stateApp: States): States{
-    return  when (stateApp) {
+fun machineStateLemonade(stateApp: States): States {
+    return when (stateApp) {
         States.LEMON_TREE -> States.LEMON_SQUEEZE
         States.LEMON_SQUEEZE -> States.LEMON_DRINK
         States.LEMON_DRINK -> States.LEMON_RESTART
         States.LEMON_RESTART -> States.LEMON_TREE
         else -> States.LEMON_TREE
     }
+
 }
 
 @Composable
@@ -57,32 +58,45 @@ fun LemonadeWithButtonAndImage(modifier: Modifier = Modifier) {
 
     var stateApp by remember { mutableStateOf(States.LEMON_TREE) }
     var randomTaps by remember { mutableStateOf(0) }
-
-    val lemonTreeState = statesLemonade.find { it.state == stateApp }
+    val lemonTreeData = statesLemonade.find { it.state == stateApp }
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (lemonTreeState != null) {
+        if (lemonTreeData != null) {
             Button(onClick = {
-                stateApp = machineStateLemonade (stateApp)
+                stateApp = machineStateLemonade(stateApp)
+
+                //Random number of time
+                when {
+                    stateApp == States.LEMON_SQUEEZE && randomTaps == 0 -> {
+                        randomTaps = (2..4).random()
+                        stateApp = States.LEMON_SQUEEZE
+                    }
+
+                    randomTaps != 0 -> {
+                        randomTaps--
+                        stateApp = States.LEMON_SQUEEZE
+                    }
+
+                    else -> stateApp = States.LEMON_DRINK
+                }
 
             }) {
                 Image(
-                    painter = painterResource(id = lemonTreeState.idDrawable),
-                    contentDescription = stringResource(lemonTreeState.idContentDescription)
+                    painter = painterResource(id = lemonTreeData.idDrawable),
+                    contentDescription = stringResource(lemonTreeData.idContentDescription)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = stringResource(id = lemonTreeState.idString),
+                text = stringResource(id = lemonTreeData.idString),
                 fontSize = 18.sp
             )
         }
     }
 }
-
 
 @Preview
 @Composable
